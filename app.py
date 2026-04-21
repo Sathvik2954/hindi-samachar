@@ -8,70 +8,94 @@ import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 from PIL import Image
-import pytesseract
+import easyocr
 from pdf2image import convert_from_path
-import cv2
 import numpy as np
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
-import os
-from dotenv import load_dotenv
+from huggingface_hub import hf_hub_download
 
-# Load .env file only if it exists (local development)
-load_dotenv()
+# ============================================================
+# MODEL DOWNLOAD FROM HUGGING FACE HUB
+# ============================================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "indic_news_model")
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-MODEL_DIR = "indic_news_model"
-ZIP_URL = os.getenv("MODEL_DOWNLOAD_URL")  # Works locally and on Render
+required_files = ["config.json", "model.pth", "label2id.json", "id2label.json"]
 
+missing_files = [
+    f for f in required_files if not os.path.exists(os.path.join(MODEL_DIR, f))
+]
+
+if missing_files:
+    print(f"Missing: {missing_files}. Downloading...")
+    for file in required_files:
+        try:
+            hf_hub_download(
+                repo_id="Sathvik2954/hindi-news-model",
+                filename=file,
+                local_dir=MODEL_DIR,
+                local_dir_use_symlinks=False,
+            )
+            print(f"Downloaded: {file}")
+        except Exception as e:
+            print(f"Failed: {file} - {e}")
+    print("Model download complete.")
+else:
+    print("All model files found locally.")
+
+# ============================================================
+# FLASK APP
+# ============================================================
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "./uploads"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # ============================================================
-# PORTABLE TESSERACT PATH (adjust if needed)
+# EASYOCR
 # ============================================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TESSERACT_PATH = os.path.join(BASE_DIR, "tesseract_portable", "tesseract.exe")
-if os.path.exists(TESSERACT_PATH):
-    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
-else:
-    pytesseract.pytesseract.tesseract_cmd = "tesseract"  # fallback to system PATH
+print("Loading EasyOCR...")
+reader = easyocr.Reader(["hi", "en"], gpu=False)
+print("EasyOCR ready.")
 
 # ============================================================
-# MODEL LOADING
+# LOAD TOKENIZER (from original model, NOT from local folder)
 # ============================================================
-MODEL_DIR = os.path.join(BASE_DIR, "indic_news_model")
+print("Loading tokenizer from original IndicBERTv2...")
+tokenizer = AutoTokenizer.from_pretrained("ai4bharat/IndicBERTv2-MLM-only")
+print("Tokenizer ready.")
+
+# ============================================================
+# LOAD LABEL MAPPINGS AND MODEL WEIGHTS
+# ============================================================
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MAX_LEN = 128
 
+with open(os.path.join(MODEL_DIR, "label2id.json"), "r", encoding="utf-8") as f:
+    label2id = json.load(f)
+with open(os.path.join(MODEL_DIR, "id2label.json"), "r", encoding="utf-8") as f:
+    id2label = json.load(f)
+    id2label = {int(k): v for k, v in id2label.items()}
 
-def load_model_and_tokenizer(model_dir):
-    tokenizer = AutoTokenizer.from_pretrained(model_dir)
-    with open(os.path.join(model_dir, "label2id.json"), "r", encoding="utf-8") as f:
-        label2id = json.load(f)
-    with open(os.path.join(model_dir, "id2label.json"), "r", encoding="utf-8") as f:
-        id2label = json.load(f)
-        id2label = {int(k): v for k, v in id2label.items()}
-    config = AutoConfig.from_pretrained(model_dir)
-    config.num_labels = len(label2id)
-    config.label2id = label2id
-    config.id2label = id2label
-    model = AutoModelForSequenceClassification.from_config(config)
-    state_dict = torch.load(os.path.join(model_dir, "model.pth"), map_location="cpu")
-    model.load_state_dict(state_dict)
-    model.to(DEVICE)
-    model.eval()
-    return model, tokenizer, id2label
+# Load model config from local config.json
+config = AutoConfig.from_pretrained(MODEL_DIR)
+config.num_labels = len(label2id)
+config.label2id = label2id
+config.id2label = id2label
 
-
-print("LOADING MODEL...")
-model, tokenizer, id2label = load_model_and_tokenizer(MODEL_DIR)
+# Create model with config, then load state_dict
+model = AutoModelForSequenceClassification.from_config(config)
+state_dict = torch.load(os.path.join(MODEL_DIR, "model.pth"), map_location="cpu")
+model.load_state_dict(state_dict)
+model.to(DEVICE)
+model.eval()
 print("MODEL READY. LABELS:", list(id2label.values()))
 
 
 # ============================================================
-# CLASSIFICATION WITH CONFIDENCE SCORE
+# CLASSIFICATION
 # ============================================================
 def preprocess_text(text):
     text = " ".join(text.split())
@@ -80,7 +104,6 @@ def preprocess_text(text):
 
 
 def classify_with_confidence(text):
-    """Returns (predicted_label, confidence_percentage)"""
     cleaned = preprocess_text(text)
     inputs = tokenizer(
         cleaned,
@@ -95,18 +118,17 @@ def classify_with_confidence(text):
         probs = torch.softmax(logits, dim=1)
         confidence, pred_id = torch.max(probs, dim=1)
     pred_label = id2label[pred_id.item()]
-    return pred_label, round(confidence.item() * 100, 2)  # return as percentage
+    return pred_label, round(confidence.item() * 100, 2)
 
 
 # ============================================================
-# WEB SCRAPER (all headlines, no filters)
+# WEB SCRAPER (use your existing function)
 # ============================================================
 def scrape_hindi_news():
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
     all_headlines = []
-
     # Amar Ujala
     try:
         url = "https://www.amarujala.com/"
@@ -120,7 +142,6 @@ def scrape_hindi_news():
                 all_headlines.append(("Amar Ujala", title))
     except Exception as e:
         print(f"Amar Ujala error: {e}")
-
     # Dainik Jagran
     try:
         url = "https://www.jagran.com/"
@@ -134,7 +155,6 @@ def scrape_hindi_news():
                 all_headlines.append(("Dainik Jagran", title))
     except Exception as e:
         print(f"Dainik Jagran error: {e}")
-
     # Navbharat Times
     try:
         url = "https://navbharattimes.indiatimes.com/"
@@ -154,7 +174,6 @@ def scrape_hindi_news():
                 all_headlines.append(("Navbharat Times", title))
     except Exception as e:
         print(f"Navbharat Times error: {e}")
-
     # BBC Hindi
     try:
         url = "https://www.bbc.com/hindi"
@@ -168,7 +187,6 @@ def scrape_hindi_news():
                 all_headlines.append(("BBC Hindi", title))
     except Exception as e:
         print(f"BBC Hindi error: {e}")
-
     # Remove duplicates
     unique = []
     seen = set()
@@ -183,11 +201,9 @@ def scrape_hindi_news():
 # OCR FUNCTIONS
 # ============================================================
 def ocr_image(image):
-    img = np.array(image)
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    _, gray = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-    text = pytesseract.image_to_string(gray, lang="hin+eng")
-    return text
+    img_np = np.array(image)
+    result = reader.readtext(img_np, detail=0)
+    return " ".join(result)
 
 
 def extract_headings_from_text(text):
@@ -203,7 +219,7 @@ def extract_headings_from_text(text):
 
 
 # ============================================================
-# FLASK ROUTES (PAGES)
+# FLASK ROUTES
 # ============================================================
 @app.route("/")
 def index():
@@ -225,9 +241,6 @@ def ocr_page():
     return render_template("ocr.html")
 
 
-# ============================================================
-# API ENDPOINTS (with confidence)
-# ============================================================
 @app.route("/classify", methods=["POST"])
 def classify():
     data = request.get_json()

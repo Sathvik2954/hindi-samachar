@@ -1,13 +1,11 @@
 flask
+gunicorn
 torch
 transformers
-datasets
-scikit-learn
 requests
 beautifulsoup4
 pillow
-pytesseract
+easyocr
 pdf2image
-opencv-python
 numpy
-gunicorn
+huggingface-hub
