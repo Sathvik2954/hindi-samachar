@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TEXT INPUT | MONOCHROME</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-main: #ffffff;
+        --text-primary: #000000;
+        --text-secondary: #333333;
+        --border-dark: #000000;
+        --shadow-card: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        --radius-container: 8px;
+        --radius-pill: 9999px;
+      }
+
+      body {
+        background: var(--bg-main);
+        font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+        color: var(--text-primary);
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 2px solid var(--border-dark);
+      }
+
+      .card {
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        box-shadow: var(--shadow-card);
+        padding: 2rem;
+      }
+      .card__title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-group__label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .form-group__input {
+        width: 100%;
+        padding: 0.75rem;
+        font-family: inherit;
+        font-size: 1rem;
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+      }
+      .form-group__input:focus {
+        outline: none;
+        box-shadow: var(--shadow-card);
+      }
+
+      .btn {
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-pill);
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.1s ease;
+      }
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: var(--shadow-card);
+      }
+
+      .result {
+        margin-top: 2rem;
+        padding: 1rem;
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        background: var(--bg-main);
+        font-weight: 700;
+        font-size: 1rem;
+      }
+      .result span {
+        font-weight: 700;
+      }
+      .separator {
+        margin: 0 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back-link">← BACK TO HOME</a>
+      <div class="card">
+        <div class="card__title">TEXT INPUT</div>
+        <div class="form-group">
+          <label class="form-group__label" for="headline"
+            >ENTER HINDI HEADLINE</label
+          >
+          <textarea
+            id="headline"
+            class="form-group__input"
+            rows="4"
+            placeholder="Example: फिल्म के हीरो राहुल रॉय ने काफी लोकप्रियता हासिल की"
+          ></textarea>
+        </div>
+        <button id="classifyBtn" class="btn">CLASSIFY</button>
+        <div id="result" class="result" style="display: none"></div>
+      </div>
+    </div>
+    <script>
+      document
+        .getElementById("classifyBtn")
+        .addEventListener("click", async () => {
+          const text = document.getElementById("headline").value.trim();
+          if (!text) {
+            alert("PLEASE ENTER TEXT");
+            return;
+          }
+          const resultDiv = document.getElementById("result");
+          resultDiv.style.display = "block";
+          resultDiv.innerHTML = "PROCESSING...";
+          try {
+            const res = await fetch("/classify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: text }),
+            });
+            const data = await res.json();
+            if (data.category) {
+              resultDiv.innerHTML = `CATEGORY: ${data.category.toUpperCase()} <span class="separator">||</span> CONFIDENCE: ${data.confidence}%`;
+            } else {
+              resultDiv.innerHTML = "ERROR";
+            }
+          } catch (err) {
+            resultDiv.innerHTML = "NETWORK ERROR";
+          }
+        });
+    </script>
+  </body>
+</html>

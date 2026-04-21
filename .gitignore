@@ -1,0 +1,47 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv
+
+# Model files (LARGE – do NOT commit to Git)
+indic_news_model/*.pth
+indic_news_model/*.bin
+indic_news_model/*.safetensors
+# But keep config.json, tokenizer files, label2id.json, id2label.json (they are small)
+!indic_news_model/config.json
+!indic_news_model/label2id.json
+!indic_news_model/id2label.json
+!indic_news_model/tokenizer*
+!indic_news_model/special_tokens_map.json
+
+
+# Uploads
+uploads/
+
+# Flask session / logs
+*.log
+instance/
+.flaskenv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.coverage

@@ -1,0 +1,7 @@
+{
+  "entertainment": 0,
+  "international": 1,
+  "news": 2,
+  "science": 3,
+  "sport": 4
+}

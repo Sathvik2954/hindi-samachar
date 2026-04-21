@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OCR UPLOAD | MONOCHROME</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-main: #ffffff;
+        --text-primary: #000000;
+        --text-secondary: #333333;
+        --border-dark: #000000;
+        --shadow-card: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        --radius-container: 8px;
+        --radius-pill: 9999px;
+      }
+
+      body {
+        background: var(--bg-main);
+        font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+        color: var(--text-primary);
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 2px solid var(--border-dark);
+      }
+
+      .card {
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        box-shadow: var(--shadow-card);
+        padding: 2rem;
+      }
+      .card__title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-group__label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .form-group__input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        background: var(--bg-main);
+      }
+
+      .btn {
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-pill);
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: var(--shadow-card);
+      }
+
+      .result-card {
+        border: 1px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+      .result-card__heading {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .result-card__meta {
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .separator {
+        margin: 0 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back-link">← BACK TO HOME</a>
+      <div class="card">
+        <div class="card__title">OCR UPLOAD</div>
+        <div class="form-group">
+          <label class="form-group__label" for="fileInput"
+            >UPLOAD IMAGE OR PDF (HINDI TEXT)</label
+          >
+          <input
+            type="file"
+            id="fileInput"
+            class="form-group__input"
+            accept=".jpg,.jpeg,.png,.pdf"
+          />
+        </div>
+        <button id="ocrBtn" class="btn">EXTRACT & CLASSIFY</button>
+        <div id="result"></div>
+      </div>
+    </div>
+    <script>
+      document.getElementById("ocrBtn").addEventListener("click", async () => {
+        const file = document.getElementById("fileInput").files[0];
+        if (!file) {
+          alert("SELECT A FILE");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML =
+          '<div class="result-card">PROCESSING OCR...</div>';
+        try {
+          const res = await fetch("/api/ocr", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          if (data.results && data.results.length) {
+            let html = "";
+            data.results.forEach((item, idx) => {
+              html += `
+                        <div class="result-card">
+                            <div class="result-card__heading">${idx + 1}. ${escapeHtml(item.heading)}</div>
+                            <div class="result-card__meta">
+                                CATEGORY: ${item.category.toUpperCase()} <span class="separator">||</span> CONFIDENCE: ${item.confidence}%
+                            </div>
+                        </div>
+                    `;
+            });
+            resultDiv.innerHTML = html;
+          } else if (data.error) {
+            resultDiv.innerHTML = `<div class="result-card">ERROR: ${data.error}</div>`;
+          } else {
+            resultDiv.innerHTML =
+              '<div class="result-card">NO HEADINGS FOUND</div>';
+          }
+        } catch (err) {
+          resultDiv.innerHTML = '<div class="result-card">UPLOAD FAILED</div>';
+        }
+      });
+      function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+    </script>
+  </body>
+</html>

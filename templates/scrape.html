@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WEB SCRAPER | MONOCHROME</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-main: #ffffff;
+        --text-primary: #000000;
+        --text-secondary: #333333;
+        --border-dark: #000000;
+        --shadow-card: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        --radius-container: 8px;
+        --radius-pill: 9999px;
+      }
+
+      body {
+        background: var(--bg-main);
+        font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+        color: var(--text-primary);
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 2px solid var(--border-dark);
+      }
+
+      .card {
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        box-shadow: var(--shadow-card);
+        padding: 2rem;
+      }
+      .card__title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-group__label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .form-group__select,
+      .form-group__input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        background: var(--bg-main);
+        font-family: inherit;
+        font-size: 1rem;
+      }
+
+      .btn {
+        background: var(--bg-main);
+        border: 2px solid var(--border-dark);
+        border-radius: var(--radius-pill);
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+      }
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: var(--shadow-card);
+      }
+
+      .headline-list {
+        margin-top: 1rem;
+      }
+      .headline-card {
+        border: 1px solid var(--border-dark);
+        border-radius: var(--radius-container);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: var(--bg-main);
+      }
+      .headline-card__source {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+      .headline-card__text {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      .headline-card__category {
+        display: inline-block;
+        border: 1px solid var(--border-dark);
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-pill);
+        font-size: 0.7rem;
+        font-weight: 700;
+      }
+      .timestamp {
+        text-align: right;
+        font-size: 0.7rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back-link">← BACK TO HOME</a>
+      <div class="card">
+        <div class="card__title">WEB SCRAPER</div>
+        <div class="form-group">
+          <label class="form-group__label" for="labelSelect"
+            >SELECT CATEGORY</label
+          >
+          <select id="labelSelect" class="form-group__select">
+            <option value="entertainment">ENTERTAINMENT</option>
+            <option value="international">INTERNATIONAL</option>
+            <option value="news">NEWS</option>
+            <option value="science">SCIENCE</option>
+            <option value="sport">SPORT</option>
+          </select>
+        </div>
+        <button id="scrapeBtn" class="btn">SCRAPE LIVE HEADLINES</button>
+        <div id="results" class="headline-list"></div>
+      </div>
+    </div>
+    <script>
+      document
+        .getElementById("scrapeBtn")
+        .addEventListener("click", async () => {
+          const selectedLabel = document.getElementById("labelSelect").value;
+          const resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "<div>FETCHING HEADLINES...</div>";
+          try {
+            const res = await fetch(`/api/scrape?label=${selectedLabel}`);
+            const data = await res.json();
+            if (data.results && data.results.length) {
+              let html = `<div class="timestamp">SCRAPED: ${data.timestamp}</div>`;
+              data.results.forEach((item) => {
+                html += `
+                        <div class="headline-card">
+                            <div class="headline-card__source">[${item.source}]</div>
+                            <div class="headline-card__text">${escapeHtml(item.headline)}</div>
+                            <span class="headline-card__category">${item.category.toUpperCase()}</span>
+                        </div>
+                    `;
+              });
+              resultsDiv.innerHTML = html;
+            } else {
+              resultsDiv.innerHTML =
+                "<div>NO HEADLINES MATCH THE SELECTED CATEGORY.</div>";
+            }
+          } catch (err) {
+            resultsDiv.innerHTML = "<div>ERROR CONNECTING TO SERVER</div>";
+          }
+        });
+      function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+    </script>
+  </body>
+</html>
