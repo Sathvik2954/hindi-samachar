@@ -10,7 +10,7 @@ This project demonstrates how transformer-based models can be applied to **Indic
 
 - Deep Learning (IndicBERTv2)
 - Backend API (Flask)
-- OCR (Tesseract)
+- OCR (EasyOCR)
 - Web Scraping (BeautifulSoup)
 - Frontend UI (HTML/CSS)
 
@@ -52,7 +52,7 @@ The application allows users to:
 - Upload:
   - Images (.jpg, .png)
   - PDFs
-- Extracts Hindi text using Tesseract OCR
+- Extracts Hindi text using EasyOCR
 - Identifies headings
 - Classifies each extracted heading
 
@@ -116,8 +116,7 @@ The application allows users to:
 
 ### 📄 OCR
 
-- Tesseract
-- OpenCV
+- EasyOCR
 - PIL
 
 ### 🌐 Web Scraping
@@ -130,6 +129,10 @@ The application allows users to:
 - HTML5
 - CSS3 (Brutalist Design)
 - Vanilla JavaScript
+
+### 🚀 Deployment
+
+- Hugging Face Spaces (Docker)
 
 ---
 
@@ -149,7 +152,6 @@ The application allows users to:
 - 🔹 Batch inference for faster processing
 - 🔹 Improve OCR heading detection
 - 🔹 Add multilingual support (Hindi + English)
-- 🔹 Deploy online (Render / HuggingFace Spaces)
 - 🔹 Add confidence visualization (charts/bars)
 - 🔹 Model comparison feature (BERT vs IndicBERT)
 
@@ -173,4 +175,4 @@ This project is developed for **academic and educational purposes only**.
 
 - IndicGLUE Dataset (AI4Bharat)
 - HuggingFace Transformers
-- Tesseract OCR
+- EasyOCR
