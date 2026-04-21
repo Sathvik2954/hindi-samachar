@@ -15,6 +15,14 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
+import os
+from dotenv import load_dotenv
+
+# Load .env file only if it exists (local development)
+load_dotenv()
+
+MODEL_DIR = "indic_news_model"
+ZIP_URL = os.getenv("MODEL_DOWNLOAD_URL")  # Works locally and on Render
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "./uploads"

@@ -20,14 +20,14 @@ indic_news_model/*.safetensors
 !indic_news_model/tokenizer*
 !indic_news_model/special_tokens_map.json
 
-
 # Uploads
 uploads/
 
-# Flask session / logs
+# Flask session / logs, environment variables
 *.log
 instance/
 .flaskenv
+.env               # <-- ADDED THIS LINE
 
 # IDE
 .vscode/
