@@ -1,10 +1,10 @@
-# 📰 Hindi News Classification System
+# Hindi News Classification System
 
 A full-stack machine learning application that classifies Hindi news headlines into predefined categories using a fine-tuned **IndicBERTv2** model. The system integrates **text classification, real-time web scraping, and OCR-based extraction**, providing a complete end-to-end NLP solution.
 
 ---
 
-## 📌 Overview
+## Overview
 
 This project demonstrates how transformer-based models can be applied to **Indic language processing**, specifically for Hindi news classification. It combines:
 
@@ -22,21 +22,21 @@ The application allows users to:
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
-🌐 **Deployed Web App:**
+**Deployed Web App:**
 https://huggingface.co/spaces/Sathvik2954/hindi-samachar-2
 
 ---
 
-## 📂 Dataset
+## Dataset
 
-📊 **Dataset Used:**
+**Dataset Used:**
 https://huggingface.co/datasets/ai4bharat/indic_glue
 
 ---
 
-## 📦 Model Download
+## Model Download
 
 The trained model is hosted on Hugging Face.
 To upload or manage the model, you can use:
@@ -51,13 +51,13 @@ login()
 upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type="model")
 ```
 
-> ✅ The model is automatically loaded from Hugging Face during runtime.
+> The model is automatically loaded from Hugging Face during runtime.
 
 ---
 
-## 🚀 Features
+## Features
 
-### 🧠 1. Text Classification
+### 1. Text Classification
 
 * Input any Hindi headline
 * Returns:
@@ -68,7 +68,7 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 
 ---
 
-### 🌐 2. Web Scraper + Classification
+### 2. Web Scraper + Classification
 
 * Scrapes live headlines from:
 
@@ -82,7 +82,7 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 
 ---
 
-### 🖼️ 3. OCR + Classification
+### 3. OCR + Classification
 
 * Upload:
 
@@ -94,14 +94,14 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 
 ---
 
-## 🧠 Model Details
+## Model Details
 
-### 📊 Dataset
+### Dataset
 
 * Source: IndicGLUE (bbca.hi subset)
 * Original categories: 14+
 
-### 🏷️ Selected Categories
+### Selected Categories
 
 * News
 * Entertainment
@@ -111,7 +111,7 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 
 ---
 
-### ⚙️ Preprocessing
+### Preprocessing
 
 * Text normalization (remove extra spaces)
 * Sentence truncation (first 1–2 sentences)
@@ -119,7 +119,7 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 
 ---
 
-### ⚖️ Data Balancing
+### Data Balancing
 
 * Hybrid approach:
 
@@ -129,74 +129,74 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 
 ---
 
-### 🏆 Model Performance
+### Model Performance
 
-| Model               | Accuracy   |
-| ------------------- | ---------- |
-| BERT (Multilingual) | 73.98%     |
-| XLM-RoBERTa         | 78.06%     |
-| **IndicBERTv2**     | **79.57%** |
+| Model               | Accuracy |
+| ------------------- | -------- |
+| BERT (Multilingual) | 73.98%   |
+| XLM-RoBERTa         | 78.06%   |
+| IndicBERTv2         | 79.57%   |
 
-👉 IndicBERTv2 performed best due to its specialization in Indic languages.
+IndicBERTv2 performed best due to its specialization in Indic languages.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### 🔧 Backend
+### Backend
 
 * Flask
 * PyTorch
 * Transformers (HuggingFace)
 
-### 🧠 Model
+### Model
 
 * IndicBERTv2
 
-### 📄 OCR
+### OCR
 
 * EasyOCR
 * PIL
 
-### 🌐 Web Scraping
+### Web Scraping
 
 * Requests
 * BeautifulSoup
 
-### 🎨 Frontend
+### Frontend
 
 * HTML5
 * CSS3 (Brutalist Design)
 * Vanilla JavaScript
 
-### 🚀 Deployment
+### Deployment
 
 * Hugging Face Spaces (Docker)
 
 ---
 
-## 📌 Key Highlights
+## Key Highlights
 
-* ✅ End-to-end ML pipeline (training → deployment)
-* ✅ Real-time news classification
-* ✅ Multi-modal input (text + web + OCR)
-* ✅ Confidence-based predictions
-* ✅ Lightweight and responsive UI
-* ✅ Modular and scalable architecture
-
----
-
-## 🔮 Future Improvements
-
-* 🔹 Batch inference for faster processing
-* 🔹 Improve OCR heading detection
-* 🔹 Add multilingual support (Hindi + English)
-* 🔹 Add confidence visualization (charts/bars)
-* 🔹 Model comparison feature (BERT vs IndicBERT)
+* End-to-end ML pipeline (training → deployment)
+* Real-time news classification
+* Multi-modal input (text + web + OCR)
+* Confidence-based predictions
+* Lightweight and responsive UI
+* Modular and scalable architecture
 
 ---
 
-## 👨‍🏫 Project Guide
+## Future Improvements
+
+* Batch inference for faster processing
+* Improve OCR heading detection
+* Add multilingual support (Hindi + English)
+* Add confidence visualization (charts/bars)
+* Model comparison feature (BERT vs IndicBERT)
+
+---
+
+## Project Guide
 
 **Mr. Panigrahi Srikanth**<br>
 Assistant Professor<br>
@@ -206,7 +206,7 @@ Gandipet – 500075
 
 ---
 
-## 👨‍💻 Authors
+## Authors
 
 * Parin Uday
 * Parna Revanth Kumar
@@ -214,13 +214,13 @@ Gandipet – 500075
 
 ---
 
-## 📄 License
+## License
 
-This project is developed for **academic and educational purposes only**.
+This project is developed for academic and educational purposes only.
 
 ---
 
-## ⭐ Acknowledgements
+## Acknowledgements
 
 * IndicGLUE Dataset (AI4Bharat)
 * HuggingFace Transformers
