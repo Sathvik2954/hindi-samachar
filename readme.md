@@ -199,6 +199,7 @@ upload_folder(folder_path=".", repo_id="Sathvik2954/hindi-news-model", repo_type
 ## 👨‍🏫 Project Guide
 
 **Mr. Panigrahi Srikanth**
+
 Assistant Professor
 Department of AIML
 Chaitanya Bharathi Institute of Technology (Autonomous)
